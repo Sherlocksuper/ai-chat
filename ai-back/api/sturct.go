@@ -27,3 +27,11 @@ type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
+
+type Version struct {
+	gorm.Model
+	Version      string `json:"version" gorm:"unique"`
+	Introduction string `json:"introduction"`
+	Enable       bool   `json:"enable"`
+	DownloadUrl  string `json:"downloadUrl"`
+}

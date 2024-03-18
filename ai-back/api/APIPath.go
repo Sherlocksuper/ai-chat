@@ -29,3 +29,9 @@ const (
 	GETCHATLIST   = "/chat/list"
 	SENDMESSAGE   = "/chat/send"
 )
+
+// /version
+const (
+	ALLVERSION = "/version/all"
+	ADDVERSION = "/version/add"
+)

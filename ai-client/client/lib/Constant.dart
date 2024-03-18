@@ -2,8 +2,7 @@
 
 class Constant {
   static const String appName = 'AI';
-  static const String VERSION = '1.0.0';
-
+  static const String CURRENT_VERSION = '1.0.1';
   static const String login = 'Login';
 
   static const String BASE_URL = 'http://192.168.0.188:8080';
@@ -21,4 +20,7 @@ class Constant {
   static const String GETCHATDETAIL = '$BASE_URL/chat/detail';
   static const String GETCHATLIST = '$BASE_URL/chat/list';
   static const String SENDMESSAGE = '$BASE_URL/chat/send';
+
+  ///Version API
+  static const String AllVERSION = '$BASE_URL/version/all';
 }

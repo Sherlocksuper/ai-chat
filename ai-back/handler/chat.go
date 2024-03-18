@@ -92,6 +92,7 @@ func (f *ChatHandler) GetChatList(c *gin.Context) {
 
 // SendMessage 发送消息 POST
 func (f *ChatHandler) SendMessage(c *gin.Context) {
+	var airesponse string
 	var message api.Message
 	err := c.BindJSON(&message)
 
@@ -101,7 +102,7 @@ func (f *ChatHandler) SendMessage(c *gin.Context) {
 		c.JSON(200, api.M(api.FAIL, "参数错误", nil))
 	}
 
-	err = f.chatService.SendMessage(strconv.Itoa(message.ChatID), message.Content)
+	airesponse, err = f.chatService.SendMessage(strconv.Itoa(message.ChatID), message.Content)
 
 	if err != nil {
 		c.JSON(200, api.M(api.FAIL, err.Error(), nil))
@@ -115,6 +116,9 @@ func (f *ChatHandler) SendMessage(c *gin.Context) {
 
 	fmt.Println("userId is :"+strconv.Itoa(int(chat.UserID)), "location is :handler/chat.go SendMessage")
 
-	//通过UserId获取websocket连接
-	ws.SendMsg(chat.UserID)
+	//通过UserId获取websocket连接,并向客户端发送消息
+	ws.SendMsg(chat.UserID, ws.WSReturnMessageType{
+		ChatId:  message.ChatID,
+		Message: airesponse,
+	})
 }

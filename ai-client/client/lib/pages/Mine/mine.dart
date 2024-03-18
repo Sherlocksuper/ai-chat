@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
+import '../../Constant.dart';
 import '../../Controller/UserController.dart';
 
 class Mine extends StatelessWidget {
@@ -53,6 +54,13 @@ class Mine extends StatelessWidget {
               onTap: () {
                 WSController.send("客户端尝试");
               },
+            ),
+
+            //当前版本
+            const ListTile(
+              leading: Icon(Icons.info),
+              title: Text('当前版本'),
+              trailing: Text(Constant.CURRENT_VERSION),
             ),
           ],
         ),

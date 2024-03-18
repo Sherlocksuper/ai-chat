@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -18,6 +19,11 @@ var (
 	// 互斥锁，防止程序对统一资源同时进行读写
 	mux sync.Mutex
 )
+
+type WSReturnMessageType struct {
+	ChatId  int    `json:"chatId"`
+	Message string `json:"message"`
+}
 
 // websocket
 var upgrade = websocket.Upgrader{
@@ -90,7 +96,7 @@ func deleteClient(id string) {
 }
 
 // 发送消息
-func SendMsg(urId uint) {
+func SendMsg(urId uint, message WSReturnMessageType) {
 
 	userId := fmt.Sprintf("%d", urId)
 	connect, isExist := getClient(userId)
@@ -99,5 +105,8 @@ func SendMsg(urId uint) {
 		return
 	}
 
-	connect.WriteMessage(websocket.TextMessage, []byte("open ai 发送完成"))
+	//把message变为json字符串
+	messageString, _ := json.Marshal(message)
+
+	connect.WriteMessage(websocket.TextMessage, messageString)
 }

@@ -18,6 +18,7 @@ func init() {
 	api.Db.AutoMigrate(&api.User{})
 	api.Db.AutoMigrate(&api.Chat{})
 	api.Db.AutoMigrate(&api.Message{})
+	api.Db.AutoMigrate(&api.Version{})
 }
 
 func main() {
@@ -26,6 +27,9 @@ func main() {
 
 	chatService := service.NewChatService()
 	chatHandler := handler.NewChatHandler(chatService)
+
+	versionService := service.NewVersionService()
+	versionHandler := handler.NewVersionHandler(versionService)
 
 	//生成一个request的列表
 	requests := []request{
@@ -43,6 +47,11 @@ func main() {
 		{Type: api.GET, Path: api.GETCHATDETAIL, Fun: chatHandler.GetChatDetail},
 		{Type: api.GET, Path: api.GETCHATLIST, Fun: chatHandler.GetChatList},
 		{Type: api.POST, Path: api.SENDMESSAGE, Fun: chatHandler.SendMessage},
+
+		///TODO:Version操作
+
+		{Type: api.GET, Path: api.ALLVERSION, Fun: versionHandler.GetAllVersions},
+		{Type: api.POST, Path: api.ADDVERSION, Fun: versionHandler.AddVersion},
 	}
 
 	//注册路由

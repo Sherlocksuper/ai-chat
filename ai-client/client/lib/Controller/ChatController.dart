@@ -1,4 +1,5 @@
 import 'package:client/model/chat_struct.dart';
+import 'package:client/model/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -68,8 +69,11 @@ class ChatController extends GetxController {
   ///发送消息
   Future<void> sendMessage(int chatId, String content) async {
     print("chatId:${chatId}content:$content");
-    var map = {'chatId': chatId, 'content': content};
-    var response = await dio.post(Constant.SENDMESSAGE, data: map);
+    addMessage(chatId, "user", content);
+
+    update();
+    var response = await dio.post(Constant.SENDMESSAGE, data: {'chatId': chatId, 'content': content});
+
     if (response.data["code"] == 200) {
     } else {
       EasyLoading.showError(response.data["message"]);
@@ -112,5 +116,14 @@ class ChatController extends GetxController {
     } else {
       EasyLoading.showError(response.data["message"]);
     }
+  }
+
+  void addMessage(int chatId, String role, String message) {
+    print("正在添加数据");
+    chatList
+        .firstWhere((element) => element.id == chatId)
+        .messages
+        .add(Message(chatId: chatId, role: role, content: message));
+    update([chatId]);
   }
 }

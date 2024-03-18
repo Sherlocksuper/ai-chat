@@ -23,7 +23,7 @@ type ChatService interface {
 
 	GetChatList(chats *[]Chat, userId string) error
 
-	SendMessage(chatId string, message string) error
+	SendMessage(chatId string, message string) (string, error)
 }
 
 type chatService struct{}
@@ -92,15 +92,16 @@ func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 }
 
 // SendMessage 发送消息
-func (c chatService) SendMessage(chatId string, message string) error {
+func (c chatService) SendMessage(chatId string, message string) (string, error) {
 	fmt.Println("chatId is :"+chatId, "message is :"+message, "    location is :service/chat.go  SendMessage")
+
 	chat := Chat{}
 	err := api.Db.Model(&Chat{}).Preload("Messages").Find(&chat, chatId)
 
 	chat.Messages = append(chat.Messages, api.Message{Role: openai.ChatMessageRoleUser, Content: message})
 
 	if err.Error != nil || err.RowsAffected == 0 {
-		return errors.New("chat not found")
+		return "", errors.New("chat not found")
 	}
 
 	response := sendMessage(buildOpenAIMessages(&chat.Messages))
@@ -111,9 +112,9 @@ func (c chatService) SendMessage(chatId string, message string) error {
 
 	//如果失败
 	if err.Error != nil {
-		return errors.New("send message failed")
+		return "", errors.New("send message failed")
 	}
-	return nil
+	return response, nil
 }
 
 // SaveAIResponse 保存ai回复 到数据库

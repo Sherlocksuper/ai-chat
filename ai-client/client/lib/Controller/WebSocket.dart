@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:client/Constant.dart';
+import 'package:client/Controller/ChatController.dart';
 import 'package:client/Controller/UserController.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -24,7 +29,9 @@ class WSController {
 
       channel.stream.listen(
         (event) {
-          print(event);
+          print("收到消息$event");
+          Map<String, dynamic> data = json.decode(event);
+          Get.find<ChatController>().addMessage(data["chatId"], "assistant", data["message"]);
         },
         onDone: () {
           hasInit = false;
