@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client/model/chat_struct.dart';
 import 'package:client/model/message.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'user_controller.dart';
 class ChatController extends GetxController {
   bool isEdited = false;
   List<ChatDetailStruct> chatList = [];
+  ScrollController scrollController = ScrollController();
 
   //配置AI Bot
   void configAI() {
@@ -69,16 +72,18 @@ class ChatController extends GetxController {
   ///发送消息
   Future<void> sendMessage(int chatId, String content) async {
     print("chatId:${chatId}content:$content");
-    addMessage(chatId, "user", content);
 
-    update();
+    addMessage(chatId, "user", content);
+    update([chatId]);
+
+    print("把消息添加到了本地并且刷新了页面");
+
     var response = await dio.post(Constant.SENDMESSAGE, data: {'chatId': chatId, 'content': content});
 
     if (response.data["code"] == 200) {
     } else {
       EasyLoading.showError(response.data["message"]);
     }
-    update();
   }
 
   ///获取消息列表
@@ -124,6 +129,17 @@ class ChatController extends GetxController {
         .firstWhere((element) => element.id == chatId)
         .messages
         .add(Message(chatId: chatId, role: role, content: message));
+
+    print("添加$role的信息完成，正在滚动");
+
     update([chatId]);
+
+    Timer(const Duration(milliseconds: 100), () {
+      scrollController.position.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 }

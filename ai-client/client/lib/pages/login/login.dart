@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../Controller/user_controller.dart';
 
 class LoginRegisterPage extends StatefulWidget {
@@ -11,7 +10,6 @@ class LoginRegisterPage extends StatefulWidget {
 class _LoginRegisterPageState extends State<LoginRegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   bool _isLogin = true;
 
   @override
@@ -31,18 +29,14 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
-            ),
+            _buildTextField(_usernameController, 'Username', Icons.person_outline),
             const SizedBox(height: 20.0),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
-            ),
+            _buildTextField(_passwordController, 'Password', Icons.lock_outline, isPassword: true),
             const SizedBox(height: 20.0),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.grey[800], // Text color
+              ),
               onPressed: () {
                 String username = _usernameController.text;
                 String password = _passwordController.text;
@@ -54,8 +48,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               },
               child: Text(_isLogin ? 'Login' : 'Register'),
             ),
-            const SizedBox(height: 20.0),
+            SizedBox(height: 20.0),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[500], // Grey text button
+              ),
               onPressed: () {
                 setState(() {
                   _isLogin = !_isLogin;
@@ -66,6 +63,31 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isPassword = false}) {
+    return TextField(
+      cursorColor: Colors.grey,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        label: Text(label, style: const TextStyle(color: Colors.black)),
+        prefixIcon: Icon(icon),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        disabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusColor: Colors.red,
+      ),
+      style: const TextStyle(),
+      onChanged: (value) {
+        controller.text = value;
+      },
     );
   }
 }

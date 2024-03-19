@@ -1,5 +1,4 @@
 import 'package:client/Controller/chat_controller.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +7,7 @@ import 'chat_item.dart';
 
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
+
 
   @override
   Widget build(BuildContext context) {

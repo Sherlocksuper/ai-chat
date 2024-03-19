@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?><!-- Modify this file to customize your launch splash screen -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- 自动逸背景颜色 #e6ecec-->
-    <item android:drawable="@color/flash_color" />
-
+    <item
+        android:drawable="@color/flash_color"
+        android:gravity="fill" />
     <!-- You can insert your own image assets here -->
     <item>
         <bitmap

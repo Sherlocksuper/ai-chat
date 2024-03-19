@@ -4,6 +4,7 @@ import 'package:client/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../Constant.dart';
@@ -27,16 +28,59 @@ class VersionService {
     }
   }
 
-  ///更新app提示
   void updateAppAlert(String updateUrl) {
     Get.defaultDialog(
-      title: '提示,当前版本${Constant.CURRENT_VERSION}不可用,请更新',
-      middleText: '是否更新',
-      textConfirm: '是',
-      textCancel: '否',
+      title: 'Update Required',
+      titleStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.grey[300],
+      ),
+      middleTextStyle: TextStyle(
+        fontSize: 16,
+        color: Colors.grey[100],
+      ),
+      backgroundColor: Colors.grey[850],
+      radius: 8.0,
+      // Rounded corners
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.system_update,
+            color: Colors.cyanAccent,
+            size: 60,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Current version ${Constant.CURRENT_VERSION} is not available. Please update.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[100],
+            ),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Would you like to update now?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[100],
+            ),
+          ),
+        ],
+      ),
+      textConfirm: 'YES',
+      textCancel: 'NO',
       confirmTextColor: Colors.white,
+      buttonColor: Colors.cyanAccent,
+      // Confirm button color
+      cancelTextColor: Colors.grey[300],
       onConfirm: () {
-        if (updateUrl == "") updateUrl == "www.baidu.com";
+        if (updateUrl.isEmpty) {
+          updateUrl = "https://www.baidu.com";
+        }
         launchUrl(Uri.parse(updateUrl));
       },
       onCancel: () {
@@ -86,6 +130,9 @@ class UserController {
     }
     me = User.fromJson(json.decode(data));
     Get.off(() => HomeTab());
+    //
+    print("checklogin 完成，flutter_native_splash.remove(); location : user_controller.dart ,checkLogin");
+    FlutterNativeSplash.remove();
     versionService.checkVersion();
   }
 

@@ -28,6 +28,7 @@ type ChatService interface {
 
 type chatService struct{}
 
+// StartAChat 开始一个聊天
 func (c chatService) StartAChat(title string, id string, systemMessage string) error {
 	if len(title) == 0 || title == "" {
 		return errors.New("title can not be empty")
@@ -52,6 +53,7 @@ func (c chatService) StartAChat(title string, id string, systemMessage string) e
 	return nil
 }
 
+// DeleteChat delete chat
 func (c chatService) DeleteChat(id string) error {
 	chat := Chat{}
 	api.Db.Find(&chat, id)
@@ -72,6 +74,7 @@ func (c chatService) DeleteAllChat(userId string) error {
 	return nil
 }
 
+// GetChatDetail 获取聊天详情
 func (c chatService) GetChatDetail(id string) (Chat, error) {
 	chat := Chat{}
 	err := api.Db.Model(&Chat{}).Preload("Messages").Find(&chat, id)
@@ -82,6 +85,7 @@ func (c chatService) GetChatDetail(id string) (Chat, error) {
 	return chat, nil
 }
 
+// GetChatList 获取聊天列表
 func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 	Idint, _ := strconv.Atoi(userId)
 	err := api.Db.Model(&Chat{}).Preload("Messages").Where("user_id = ?", Idint).Find(&chats)
