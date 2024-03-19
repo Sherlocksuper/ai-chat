@@ -1,10 +1,10 @@
-import 'package:client/Controller/ChatController.dart';
+import 'package:client/Controller/chat_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'chatDetail.dart';
-import 'chatItem.dart';
+import 'chat_detail.dart';
+import 'chat_item.dart';
 
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
@@ -26,7 +26,6 @@ class ChatPage extends StatelessWidget {
                   icon: const Icon(Icons.add)),
               IconButton(
                   onPressed: () {
-                    //弹出弹窗，确认是否删除所有聊天记录
                     Get.defaultDialog(
                       title: 'Delete All Chat',
                       content: const Text('Are you sure to delete all chat?'),

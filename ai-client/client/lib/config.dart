@@ -1,8 +1,8 @@
-import 'package:client/Controller/WebSocket.dart';
+import 'package:client/Controller/web_socket.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'Controller/ChatController.dart';
+import 'Controller/chat_controller.dart';
 
 Dio dio = Dio();
 

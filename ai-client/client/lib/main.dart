@@ -1,6 +1,6 @@
 import 'package:client/config.dart';
 import 'package:client/pages/Chat/chat.dart';
-import 'package:client/pages/Login/Login.dart';
+import 'package:client/pages/Login/login.dart';
 import 'package:client/pages/Mine/mine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -51,6 +51,7 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    afterLogin();
     return DefaultTabController(
       length: homePageType.length,
       child: Scaffold(

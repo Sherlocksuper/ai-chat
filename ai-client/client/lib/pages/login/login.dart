@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../Controller/UserController.dart';
+import '../../Controller/user_controller.dart';
 
 class LoginRegisterPage extends StatefulWidget {
   @override
@@ -13,6 +13,12 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLogin = true;
+
+  @override
+  void initState() {
+    super.initState();
+    UserController.checkLogin();
+  }
 
   @override
   Widget build(BuildContext context) {

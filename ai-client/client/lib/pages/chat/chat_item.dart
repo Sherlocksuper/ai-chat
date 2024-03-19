@@ -16,9 +16,9 @@ class ChatItem extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.only(right: 15),
-            child: CircleAvatar(
+            child: const CircleAvatar(
               radius: 30,
-              backgroundImage: AssetImage('assets/ava.jpg'),
+              backgroundImage: AssetImage('assets/logo.png'),
               backgroundColor: Colors.transparent,
             ),
           ),

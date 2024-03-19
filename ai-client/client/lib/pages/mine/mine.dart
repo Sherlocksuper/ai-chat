@@ -1,11 +1,11 @@
-import 'package:client/Controller/WebSocket.dart';
+import 'package:client/Controller/web_socket.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constant.dart';
-import '../../Controller/UserController.dart';
+import '../../Controller/user_controller.dart';
 
 class Mine extends StatelessWidget {
   Mine({super.key});

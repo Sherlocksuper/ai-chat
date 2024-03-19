@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 import '../Constant.dart';
 import '../config.dart';
-import 'UserController.dart';
+import 'user_controller.dart';
 
 //因为涉及到刷新页面，所以使用GetsController
 class ChatController extends GetxController {
