@@ -5,8 +5,8 @@ class Constant {
   static const String CURRENT_VERSION = '1.0.1';
   static const String login = 'Login';
 
-  static const String BASE_URL = 'http://192.168.0.188:8080';
-  static const String SOCKET_URL = 'ws://192.168.0.188:8080/ws';
+  static const String BASE_URL = 'http://10.236.169.48:8080';
+  static const String SOCKET_URL = 'ws://10.236.169.48:8080/ws';
 
   ///USER API
   static const String LOGIN = '$BASE_URL/user/login';

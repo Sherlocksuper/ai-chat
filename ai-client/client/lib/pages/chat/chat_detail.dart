@@ -20,7 +20,9 @@ class ChatDetail extends StatelessWidget {
       id: chat.id,
       builder: (logic) {
         Timer(const Duration(milliseconds: 100), () {
-          logic.scrollController.jumpTo(logic.scrollController.position.maxScrollExtent);
+          logic.scrollController.jumpTo(
+            logic.scrollController.position.minScrollExtent,
+          );
         });
         return PopScope(
           onPopInvoked: (value) {},
@@ -35,6 +37,7 @@ class ChatDetail extends StatelessWidget {
                     children: [
                       ListView.builder(
                         shrinkWrap: true,
+                        reverse: true,
                         physics: const ClampingScrollPhysics(),
                         controller: logic.scrollController,
                         itemBuilder: (context, index) {
@@ -49,9 +52,8 @@ class ChatDetail extends StatelessWidget {
                         right: 10,
                         child: FloatingActionButton(
                           onPressed: () {
-                            print('scroll to top');
                             logic.scrollController.animateTo(
-                              logic.scrollController.position.maxScrollExtent,
+                              logic.scrollController.position.minScrollExtent,
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.easeInOut,
                             );
@@ -175,6 +177,7 @@ class ChatBubbles extends StatelessWidget {
                   fontSize: 10,
                   color: Colors.white.withOpacity(0.6),
                 ),
+                textAlign: role == "user" ? TextAlign.right : TextAlign.left,
               ),
             ),
           ],

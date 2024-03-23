@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:client/Constant.dart';
 import 'package:client/Controller/chat_controller.dart';
 import 'package:client/Controller/user_controller.dart';
+import 'package:client/model/ws_message.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:web_socket_channel/io.dart';
@@ -31,8 +32,20 @@ class WSController {
       channel.stream.listen(
         (event) {
           print("收到消息$event");
-          Map<String, dynamic> data = json.decode(event);
-          Get.find<ChatController>().addMessage(data["chatId"], "assistant", data["message"]);
+          try {
+            WsReMessage message = WsReMessage.fromJson(json.decode(event));
+            switch (message.type) {
+              case MessageType.chatMessage:
+                ChatResContent content = ChatResContent.fromJson(message.content);
+                Get.find<ChatController>().receiveStreamingMessage(content.chatId, content.message);
+                break;
+              case MessageType.chatSystem:
+                break;
+              default:
+            }
+          } catch (e) {
+            print("解析消息失败");
+          }
         },
         onDone: () {
           hasInit = false;

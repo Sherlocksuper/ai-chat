@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -23,7 +24,7 @@ type ChatService interface {
 
 	GetChatList(chats *[]Chat, userId string) error
 
-	SendMessage(chatId string, message string) (string, error)
+	SendMessage(chatId string, message string) error
 }
 
 type chatService struct{}
@@ -66,6 +67,7 @@ func (c chatService) DeleteChat(id string) error {
 
 // DeleteAllChat delete all chat
 func (c chatService) DeleteAllChat(userId string) error {
+	println("userId is :"+userId, "location is :service/chat.go  DeleteAllChat")
 	Idint, _ := strconv.Atoi(userId)
 	err := api.Db.Where("user_id = ?", Idint).Delete(&Chat{})
 	if err.Error != nil {
@@ -88,7 +90,10 @@ func (c chatService) GetChatDetail(id string) (Chat, error) {
 // GetChatList 获取聊天列表
 func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 	Idint, _ := strconv.Atoi(userId)
-	err := api.Db.Model(&Chat{}).Preload("Messages").Where("user_id = ?", Idint).Find(&chats)
+	//Messages倒序输出
+	err := api.Db.Model(&Chat{}).Preload("Messages", func(db *gorm.DB) *gorm.DB {
+		return api.Db.Order("id desc")
+	}).Where("user_id = ?", Idint).Find(&chats)
 	if err.RowsAffected == 0 {
 		return errors.New("chat not found")
 	}
@@ -96,19 +101,22 @@ func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 }
 
 // SendMessage 发送消息
-func (c chatService) SendMessage(chatId string, message string) (string, error) {
+func (c chatService) SendMessage(chatId string, message string) error {
 	fmt.Println("chatId is :"+chatId, "message is :"+message, "    location is :service/chat.go  SendMessage")
 
 	chat := Chat{}
 	err := api.Db.Model(&Chat{}).Preload("Messages").Find(&chat, chatId)
 
-	chat.Messages = append(chat.Messages, api.Message{Role: openai.ChatMessageRoleUser, Content: message})
-
 	if err.Error != nil || err.RowsAffected == 0 {
-		return "", errors.New("chat not found")
+		return errors.New("chat not found")
 	}
 
-	response := sendMessage(buildOpenAIMessages(&chat.Messages))
+	//把chatId变为int
+	cId, _ := strconv.Atoi(chatId)
+
+	chat.Messages = append(chat.Messages, api.Message{Role: openai.ChatMessageRoleUser, Content: message})
+
+	response := streamMessages(buildOpenAIMessages(&chat.Messages), int(chat.UserID), cId)
 
 	//这里是在数据库更新用户发送的消息和AI回复的消息
 	chat.Messages = append(chat.Messages, api.Message{Role: openai.ChatMessageRoleAssistant, Content: response})
@@ -116,9 +124,9 @@ func (c chatService) SendMessage(chatId string, message string) (string, error) 
 
 	//如果失败
 	if err.Error != nil {
-		return "", errors.New("send message failed")
+		return errors.New("send message failed")
 	}
-	return response, nil
+	return nil
 }
 
 // SaveAIResponse 保存ai回复 到数据库

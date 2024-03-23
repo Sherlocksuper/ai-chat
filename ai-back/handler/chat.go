@@ -3,7 +3,6 @@ package handler
 import (
 	"awesomeProject3/api"
 	"awesomeProject3/service"
-	"awesomeProject3/ws"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -53,6 +52,7 @@ func (f *ChatHandler) DeleteChat(c *gin.Context) {
 
 func (f *ChatHandler) DeleteAllChat(c *gin.Context) {
 	userId := c.Query("userId")
+	println("userId is :"+userId, "location is :handler/chat.go")
 	if userId == "" {
 		c.JSON(200, api.M(api.FAIL, "参数错误", nil))
 		return
@@ -92,17 +92,18 @@ func (f *ChatHandler) GetChatList(c *gin.Context) {
 
 // SendMessage 发送消息 POST
 func (f *ChatHandler) SendMessage(c *gin.Context) {
-	var airesponse string
 	var message api.Message
 	err := c.BindJSON(&message)
 
+	//打印message
 	fmt.Println("message is :"+message.Content, "location is :handler/chat.go")
 
 	if err != nil {
 		c.JSON(200, api.M(api.FAIL, "参数错误", nil))
 	}
 
-	airesponse, err = f.chatService.SendMessage(strconv.Itoa(message.ChatID), message.Content)
+	//发送消息
+	err = f.chatService.SendMessage(strconv.Itoa(message.ChatID), message.Content)
 
 	if err != nil {
 		c.JSON(200, api.M(api.FAIL, err.Error(), nil))
@@ -117,8 +118,5 @@ func (f *ChatHandler) SendMessage(c *gin.Context) {
 	fmt.Println("userId is :"+strconv.Itoa(int(chat.UserID)), "location is :handler/chat.go SendMessage")
 
 	//通过UserId获取websocket连接,并向客户端发送消息
-	ws.SendMsg(chat.UserID, ws.WSReturnMessageType{
-		ChatId:  message.ChatID,
-		Message: airesponse,
-	})
+
 }

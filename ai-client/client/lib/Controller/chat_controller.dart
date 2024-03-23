@@ -113,7 +113,7 @@ class ChatController extends GetxController {
 
   ///清空chat
   Future<void> clearChat() async {
-    var response = await dio.get("${Constant.DELETECHAT}?userId=${UserController.me.id}");
+    var response = await dio.get("${Constant.DELETEALLCHAT}?userId=${UserController.me.id}");
     print(response.data);
     if (response.data["code"] == 200) {
       chatList.clear();
@@ -128,7 +128,7 @@ class ChatController extends GetxController {
     chatList
         .firstWhere((element) => element.id == chatId)
         .messages
-        .add(Message(chatId: chatId, role: role, content: message));
+        .insert(0, Message(chatId: chatId, role: role, content: message, createdAt: DateTime.now().toString()));
 
     print("添加$role的信息完成，正在滚动");
 
@@ -136,10 +136,20 @@ class ChatController extends GetxController {
 
     Timer(const Duration(milliseconds: 100), () {
       scrollController.position.animateTo(
-        scrollController.position.maxScrollExtent,
+        scrollController.position.minScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     });
+  }
+
+  void receiveStreamingMessage(int chatId, String message) {
+    if (chatList.firstWhere((element) => element.id == chatId).messages.first.role == "user") {
+      addMessage(chatId, "assistant", message);
+    } else {
+      chatList.firstWhere((element) => element.id == chatId).messages.first.content += message;
+    }
+
+    update([chatId]);
   }
 }

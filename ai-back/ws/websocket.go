@@ -20,11 +20,6 @@ var (
 	mux sync.Mutex
 )
 
-type WSReturnMessageType struct {
-	ChatId  int    `json:"chatId"`
-	Message string `json:"message"`
-}
-
 // websocket
 var upgrade = websocket.Upgrader{
 	ReadBufferSize:   1024,
@@ -80,7 +75,6 @@ func addClient(id string, conn *websocket.Conn) {
 
 // 获取指定客户端链接
 func getClient(id string) (conn *websocket.Conn, exist bool) {
-	fmt.Println("正在获取客户端链接:userid = "+id, "   location:websocket.go getclient")
 	mux.Lock()
 	conn, exist = client[id]
 	mux.Unlock()
@@ -96,10 +90,11 @@ func deleteClient(id string) {
 }
 
 // 发送消息
-func SendMsg(urId uint, message WSReturnMessageType) {
+func SendMsg(urId int, message WsReMessage) {
 
 	userId := fmt.Sprintf("%d", urId)
 	connect, isExist := getClient(userId)
+
 	if !isExist {
 		log.Println(userId + "并未链接websocket" + "  location:websocket.go  SendMsg")
 		return

@@ -7,14 +7,15 @@ import (
 	"gorm.io/gorm"
 )
 
-var dsn = "root:root@tcp(127.0.0.1:3306)/ai?charset=utf8mb4&parseTime=True&loc=Local"
+var dsn = "root:root@tcp(localhost:3306)/ai?charset=utf8mb4&parseTime=True&loc=Local"
 var Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
+// var Token = "sk-8L0QCPTdl226mUF3AdF73211D9944e10A2DaE6972e5c990d"
+//var Token = "sk-UR1Vea04XpkoPi1T071cB5A4FdF94dFf89Ba7933DaB42005"
+
 var Token = "sk-aIYgLMM0SGNroc9n2270Ed56Af2f403bAb652b77C0F0BbA6"
-var Model = openai.GPT3Dot5Turbo
-var MaxTokens = 400
-var UseStream = true
-var Client = openai.NewClient(Token)
+var Model = openai.GPT4
+var MaxTokens = 2000
 
 func init() {
 
