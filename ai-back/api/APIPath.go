@@ -1,23 +1,32 @@
 package api
 
 const (
+	SUCCESS     = 200
+	FAIL        = 400
+	NOTFOUND    = 404
+	SERVERERROR = 500
+)
+
+const (
 	POST   = "POST"
 	GET    = "GET"
 	DELETE = "DELETE"
 )
 
-// url前缀
+// /TODO url前缀
 const (
 	API = ""
 )
 
-// / user
+// /TODO user
 const (
-	REGISTER   = "/user/register"
-	LOGIN      = "/user/login"
-	FIND       = "/user/find"
-	FINDALL    = "/user/findall"
-	DELETEUSER = "/user/delete"
+	REGISTER       = "/user/register"
+	LOGIN          = "/user/login"
+	FIND           = "/user/find"
+	FINDALL        = "/user/findall"
+	DELETEUSER     = "/user/delete"
+	GETEMAILCODE   = "/user/getemailcode"
+	CHECKEMAILCODE = "/user/checkemailcode"
 )
 
 // / chat
@@ -32,6 +41,7 @@ const (
 
 // /version
 const (
-	ALLVERSION = "/version/all"
-	ADDVERSION = "/version/add"
+	ALLVERSION    = "/version/all"
+	ADDVERSION    = "/version/add"
+	LATESTVERSION = "/version/latest"
 )

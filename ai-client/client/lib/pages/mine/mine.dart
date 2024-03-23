@@ -1,6 +1,7 @@
 import 'package:client/Controller/web_socket.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
@@ -57,10 +58,14 @@ class Mine extends StatelessWidget {
             ),
 
             //当前版本
-            const ListTile(
+            ListTile(
               leading: Icon(Icons.info),
               title: Text('当前版本'),
               trailing: Text(Constant.CURRENT_VERSION),
+              onTap: () async {
+                await UserController.versionService.checkLatestVersion();
+              },
+              // Rounded corners
             ),
           ],
         ),

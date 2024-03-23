@@ -12,6 +12,8 @@ class Constant {
   static const String LOGIN = '$BASE_URL/user/login';
   static const String REGISTER = '$BASE_URL/user/register';
   static const String USER_INFO = '$BASE_URL/user/find';
+  static const String SEND_REGISTER_CODE = '$BASE_URL/user/getemailcode';
+  static const String CHECK_REGISTER_CODE = '$BASE_URL/user/checkemailcode';
 
   ///CHAT API
   static const String StartAChatHAT = '$BASE_URL/chat/start';
@@ -23,4 +25,5 @@ class Constant {
 
   ///Version API
   static const String AllVERSION = '$BASE_URL/version/all';
+  static const String LATESTVERSION = '$BASE_URL/version/latest';
 }

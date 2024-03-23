@@ -41,3 +41,14 @@ func (f *VersionHandler) AddVersion(c *gin.Context) {
 	}
 	c.JSON(200, api.M(api.SUCCESS, "添加成功", nil))
 }
+
+// GetLatestVersion 获取最新版本
+func (f *VersionHandler) GetLatestVersion(c *gin.Context) {
+	var version api.Version
+	err := f.versionService.GetLatestVersion(&version)
+	if err != nil {
+		c.JSON(200, api.M(api.FAIL, err.Error(), nil))
+		return
+	}
+	c.JSON(200, api.M(api.SUCCESS, "获取成功", version))
+}

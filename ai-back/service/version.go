@@ -9,6 +9,7 @@ type VersionService interface {
 	GetAllVersions(versions *[]api.Version) error
 	AddVersion(version *api.Version) error
 	judgeVersionIsEnable(version string) bool
+	GetLatestVersion(version *api.Version) error
 }
 
 type versionService struct {
@@ -33,6 +34,14 @@ func (v versionService) AddVersion(version *api.Version) error {
 	err := api.Db.Create(&version)
 	if err.Error != nil {
 		return err.Error
+	}
+	return nil
+}
+
+func (v versionService) GetLatestVersion(version *api.Version) error {
+	err := api.Db.Last(&version)
+	if err.Error != nil {
+		return errors.New("获取最新版本失败")
 	}
 	return nil
 }

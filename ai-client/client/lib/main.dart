@@ -1,3 +1,4 @@
+import 'package:client/Controller/user_controller.dart';
 import 'package:client/config.dart';
 import 'package:client/pages/Chat/chat.dart';
 import 'package:client/pages/Login/login.dart';

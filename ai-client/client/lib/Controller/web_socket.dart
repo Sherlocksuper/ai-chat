@@ -14,7 +14,7 @@ class WSController {
   static late Uri wsUrl;
   static late WebSocketChannel channel;
 
-  static void _judgeNull() {
+  static void judgeNull() {
     if (!hasInit) init();
     print("重新初始化");
   }
@@ -67,7 +67,7 @@ class WSController {
 
   //向服务器发送消息
   static void send(String message) {
-    _judgeNull();
+    judgeNull();
     channel.sink.add(message);
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:client/Controller/web_socket.dart';
 import 'package:client/model/chat_struct.dart';
 import 'package:client/model/message.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +72,7 @@ class ChatController extends GetxController {
 
   ///发送消息
   Future<void> sendMessage(int chatId, String content) async {
-    print("chatId:${chatId}content:$content");
+    WSController.judgeNull();
 
     addMessage(chatId, "user", content);
     update([chatId]);

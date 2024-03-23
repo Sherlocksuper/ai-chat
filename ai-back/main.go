@@ -39,6 +39,8 @@ func main() {
 		{Type: api.POST, Path: api.FIND, Fun: userHandler.FindUser},
 		{Type: api.GET, Path: api.FINDALL, Fun: userHandler.FindAllUser},
 		{Type: api.GET, Path: api.DELETEUSER, Fun: userHandler.DeleteUser},
+		{Type: api.GET, Path: api.GETEMAILCODE, Fun: userHandler.GetEmailCode},
+		{Type: api.GET, Path: api.CHECKEMAILCODE, Fun: userHandler.CheckRegisterCode},
 
 		///TODO: Chat操作
 		{Type: api.POST, Path: api.StartAChatHAT, Fun: chatHandler.StartAChat},
@@ -49,9 +51,9 @@ func main() {
 		{Type: api.POST, Path: api.SENDMESSAGE, Fun: chatHandler.SendMessage},
 
 		///TODO:Version操作
-
 		{Type: api.GET, Path: api.ALLVERSION, Fun: versionHandler.GetAllVersions},
 		{Type: api.POST, Path: api.ADDVERSION, Fun: versionHandler.AddVersion},
+		{Type: api.GET, Path: api.LATESTVERSION, Fun: versionHandler.GetLatestVersion},
 	}
 
 	//注册路由

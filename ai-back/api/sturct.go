@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -34,4 +35,24 @@ type Version struct {
 	Introduction string `json:"introduction"`
 	Enable       bool   `json:"enable"`
 	DownloadUrl  string `json:"downloadUrl"`
+}
+
+type Email struct {
+	gorm.Model
+	TargetEmail string `json:"targetEmail"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
+}
+
+// 一些返回的code
+type ReturnMessage struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
+}
+
+type Func struct {
+	Url    string `json:"url"`
+	Method string `json:"method"`
+	Action func(c *gin.Context)
 }

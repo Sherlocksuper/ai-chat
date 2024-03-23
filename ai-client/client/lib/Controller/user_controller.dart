@@ -22,15 +22,32 @@ class VersionService {
       var res = (response.data["data"] as List).firstWhere((element) => element["version"] == Constant.CURRENT_VERSION);
       if (res["enable"]) return;
       launchUrl(Uri.parse(res["downloadUrl"]));
-      updateAppAlert(res["downloadUrl"]);
+      updateAppAlert(res["downloadUrl"], false);
     } else {
       EasyLoading.showError('版本检查失败,请检查网络');
     }
   }
 
-  void updateAppAlert(String updateUrl) {
+  Future<void> checkLatestVersion() async {
+    await EasyLoading.show(status: '检查更新中...');
+    var response = await dio.get(Constant.LATESTVERSION);
+    await EasyLoading.dismiss();
+    if (response.data["code"] == 200) {
+      print(response);
+      var res = response.data["data"];
+      if (res["version"] == Constant.CURRENT_VERSION) {
+        EasyLoading.showSuccess('当前已是最新版本');
+      } else {
+        updateAppAlert(res["downloadUrl"], false);
+      }
+    } else {
+      EasyLoading.showError('版本检查失败,请检查网络');
+    }
+  }
+
+  void updateAppAlert(String updateUrl, bool required) {
     Get.defaultDialog(
-      title: 'Update Required',
+      title: required ? 'Update Required' : 'Update Available',
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -42,16 +59,16 @@ class VersionService {
       ),
       backgroundColor: Colors.grey[850],
       radius: 8.0,
-      // Rounded corners
+      barrierDismissible: !required,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.system_update,
             color: Colors.cyanAccent,
             size: 60,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Current version ${Constant.CURRENT_VERSION} is not available. Please update.',
             textAlign: TextAlign.center,
@@ -60,7 +77,7 @@ class VersionService {
               color: Colors.grey[100],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Would you like to update now?',
             textAlign: TextAlign.center,
@@ -75,7 +92,6 @@ class VersionService {
       textCancel: 'NO',
       confirmTextColor: Colors.white,
       buttonColor: Colors.cyanAccent,
-      // Confirm button color
       cancelTextColor: Colors.grey[300],
       onConfirm: () {
         if (updateUrl.isEmpty) {
@@ -125,12 +141,15 @@ class UserController {
   static Future<void> checkLogin() async {
     print('checkLogin');
     var data = await authService.readUserFile();
-    if (data == "") {
-      Get.off(() => LoginRegisterPage());
+    if (data != "") {
+      try {
+        me = User.fromJson(json.decode(data));
+        Get.off(() => HomeTab());
+      } catch (e) {
+        authService.clearUserFile();
+      }
     }
-    me = User.fromJson(json.decode(data));
-    Get.off(() => HomeTab());
-    //
+
     print("checklogin 完成，flutter_native_splash.remove(); location : user_controller.dart ,checkLogin");
     FlutterNativeSplash.remove();
     versionService.checkVersion();
@@ -151,7 +170,6 @@ class UserController {
       );
       await authService.writeUserFile(me);
       Get.off(() => HomeTab());
-      versionService.checkVersion();
       return true;
     } else {
       EasyLoading.showError(response.data["message"]);
@@ -160,14 +178,53 @@ class UserController {
   }
 
   ///注册
-  static Future<bool> register(String name, String password) async {
-    var response = await dio.post(Constant.REGISTER, data: {'name': name, 'password': password});
+  static Future<bool> register(String name, String password, String email) async {
+    if (name.isEmpty || password.isEmpty || email.isEmpty) {
+      EasyLoading.showError('请填写完整信息');
+      return false;
+    }
+    var response = await dio.post(Constant.REGISTER, data: {'name': name, 'password': password, 'email': email});
     print(response);
     if (response.data["code"] == 200) {
       EasyLoading.showSuccess('注册成功,请返回登录');
       return true;
     } else {
       EasyLoading.showError('注册失败,${response.data["message"]}');
+      return false;
+    }
+  }
+
+  ///发送验证码
+  static Future<bool> sendVerificationCode(String email) async {
+    if (email.isEmpty) {
+      EasyLoading.showError('请填写邮箱');
+      return false;
+    }
+    var response = await dio.get(Constant.SEND_REGISTER_CODE, queryParameters: {'email': email});
+    print(response);
+    if (response.data["code"] == 200) {
+      EasyLoading.showSuccess('发送成功,请查收邮箱');
+      return true;
+    } else {
+      EasyLoading.showError('发送失败,${response.data["message"]}');
+      return false;
+    }
+  }
+
+  ///检查验证码
+  static Future<bool> checkVerificationCode(String email, String code) async {
+    if (email.isEmpty || code.isEmpty) {
+      EasyLoading.showError('电子邮箱与验证码不能为空');
+      return false;
+    }
+
+    var response = await dio.get(Constant.CHECK_REGISTER_CODE, queryParameters: {'email': email, 'code': code});
+    print(response);
+    if (response.data["code"] == 200) {
+      EasyLoading.showSuccess('验证成功');
+      return true;
+    } else {
+      EasyLoading.showError('验证失败,${response.data["message"]}');
       return false;
     }
   }

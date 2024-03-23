@@ -3,10 +3,12 @@
 package handler
 
 import (
+	"awesomeProject3/Constant"
 	"awesomeProject3/api"
 	"awesomeProject3/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"math/rand"
 )
 
 type UserHandler struct {
@@ -16,6 +18,49 @@ type UserHandler struct {
 func NewUserHandler(userService service.UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
+	}
+}
+
+// GetEmailCode GET  参数: email(api.Email)
+func (f *UserHandler) GetEmailCode(c *gin.Context) {
+	var err error
+	var userEmail string
+	userEmail = c.Query("email")
+
+	redisService := service.NewRedisService()
+	emailService := service.NewEmailService()
+
+	//生成、redis储存code
+	var code string
+	for i := 0; i < 6; i++ {
+		code += fmt.Sprintf("%d", rand.Intn(10))
+	}
+	fmt.Println("给"+userEmail+"的验证码为："+code, "   location is :handler/user.go  GetEmailCode")
+	err = redisService.Set("registerCode", code)
+	var content = fmt.Sprintf(Constant.EmailTemplate, code)
+	err = emailService.SendEmail(userEmail, Constant.EmailTitle, content)
+
+	if err != nil {
+		c.JSON(200, api.M(api.FAIL, "发送失败", err.Error()))
+		return
+	}
+	c.JSON(200, api.M(api.SUCCESS, "发送成功", nil))
+}
+
+// CheckRegisterCode  参数: email(用户邮箱) code
+// 因为register要post入整个user，不太好融入，所以分开了
+func (f *UserHandler) CheckRegisterCode(c *gin.Context) {
+	//获取get参数，这里是email和code
+	email := c.Query("email")
+	code := c.Query("code")
+
+	redisService := service.NewRedisService()
+	registerCode, _ := redisService.Get("registerCode")
+	if code == registerCode {
+		redisService.Set(email, "1")
+		c.JSON(200, api.M(api.SUCCESS, "验证成功", nil))
+	} else {
+		c.JSON(200, api.M(api.FAIL, "验证失败", "验证码错误"))
 	}
 }
 

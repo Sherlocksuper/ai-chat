@@ -10,19 +10,17 @@ import (
 	"io"
 )
 
-var client = openai.NewClient(api.Token)
-
 func init() {
 
 }
 
 // /流式接收信息
 func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId int) string {
-	c := openai.NewClient(api.Token)
+	c := openai.NewClient(api.OPENAITOKEN)
 	ctx := context.Background()
 	req := openai.ChatCompletionRequest{
-		Model:     api.Model,
-		MaxTokens: api.MaxTokens,
+		Model:     api.MODEL,
+		MaxTokens: api.MAXTOKENS,
 		Messages:  messages,
 		Stream:    true,
 	}
