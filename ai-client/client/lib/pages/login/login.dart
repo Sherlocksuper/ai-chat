@@ -98,8 +98,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                     foregroundColor: Colors.grey[500], // Grey text button
                   ),
                   onPressed: () {
-                    clearAll();
                     setState(() {
+                      clearAll();
                       _isLogin = !_isLogin;
                     });
                   },
@@ -128,6 +128,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
     return TextField(
       cursorColor: Colors.grey,
       obscureText: isPassword,
+      controller: controller,
       decoration: InputDecoration(
         label: Text(label, style: const TextStyle(color: Colors.black)),
         prefixIcon: Icon(icon),

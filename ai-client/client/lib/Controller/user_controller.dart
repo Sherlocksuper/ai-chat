@@ -162,7 +162,7 @@ class UserController {
     print("登录返回信息:$response");
     if (response.data["code"] == 200) {
       me = User(
-        id: response.data["data"]["id"],
+        id: response.data["data"]["id"] ?? response.data["data"]["ID"],
         name: response.data["data"]["name"],
         password: response.data["data"]["password"],
         token: response.data["data"]["token"],

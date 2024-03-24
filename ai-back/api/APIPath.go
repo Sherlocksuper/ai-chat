@@ -15,7 +15,7 @@ const (
 
 // /TODO url前缀
 const (
-	API = ""
+	API = "aiapi"
 )
 
 // /TODO user

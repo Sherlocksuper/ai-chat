@@ -21,11 +21,11 @@ class ChatDetailStruct {
 
   factory ChatDetailStruct.fromJson(Map<String, dynamic> json) {
     return ChatDetailStruct(
-      id: json['id'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-      title: json['title'],
-      userId: json['userId'],
+      id: json['id'] ?? json['ID'],
+      createdAt: json['createdAt'] ?? json['CreatedAt'],
+      updatedAt: json['updatedAt'] ?? json['UpdatedAt'],
+      title: json['title'] ?? json['Title'],
+      userId: json['userId'] ?? json['UserId'],
       systemMessage: json['systemMessage'],
       messages: List<Message>.from(json['messages'].map((e) => Message.fromJson(e))),
     );

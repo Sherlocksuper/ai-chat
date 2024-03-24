@@ -5,7 +5,6 @@ import 'package:client/Controller/chat_controller.dart';
 import 'package:client/Controller/user_controller.dart';
 import 'package:client/model/ws_message.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -51,10 +50,14 @@ class WSController {
           hasInit = false;
           print("onDone");
         },
-        onError: (e) {
+        onError: (e) async {
           hasInit = false;
+          print(e);
           print("ws 出现错误，尝试重连");
-          init();
+          //延迟五秒
+          await Future.delayed(const Duration(seconds: 3), () {
+            init();
+          });
         },
       );
       hasInit = true;

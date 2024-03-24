@@ -16,7 +16,10 @@ func init() {
 
 // /流式接收信息
 func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId int) string {
-	c := openai.NewClient(api.OPENAITOKEN)
+	config := openai.DefaultConfig(api.OPENAITOKEN)
+	config.BaseURL = api.BASEURL
+	c := openai.NewClientWithConfig(config)
+
 	ctx := context.Background()
 	req := openai.ChatCompletionRequest{
 		Model:     api.MODEL,

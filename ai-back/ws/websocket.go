@@ -25,22 +25,24 @@ var upgrade = websocket.Upgrader{
 	ReadBufferSize:   1024,
 	WriteBufferSize:  1024,
 	HandshakeTimeout: 5 * time.Second,
-	// 取消ws跨域校验
 	CheckOrigin: func(r *http.Request) bool {
+		// 取消ws跨域校验
 		return true
+	},
+	Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+		fmt.Println("websocket连接失败,reason:", reason, "location:websocket.go	Error")
 	},
 }
 
 // Handler 处理ws请求
 func Handler(context *gin.Context) {
 	userId := context.Query("userId")
-	fmt.Println(userId+"websocket连接成功", "location:websocket.go")
 	connect, err := upgrade.Upgrade(context.Writer, context.Request, nil)
-
 	if err != nil {
 		log.Println(userId + "websocket连接失败")
 		return
 	}
+	fmt.Println(userId+"websocket连接成功", "location:websocket.go")
 
 	//把客户端添加到客户端链接池
 	addClient(userId, connect)
