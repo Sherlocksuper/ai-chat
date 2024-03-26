@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"sync"
 	"time"
@@ -30,7 +30,7 @@ var upgrade = websocket.Upgrader{
 		return true
 	},
 	Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
-		fmt.Println("websocket连接失败,reason:", reason, "location:websocket.go	Error")
+		log.Error().Str("reason", reason.Error()).Str("location", "websocket.go").Msg("websocket连接失败")
 	},
 }
 
@@ -39,10 +39,9 @@ func Handler(context *gin.Context) {
 	userId := context.Query("userId")
 	connect, err := upgrade.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {
-		log.Println(userId + "websocket连接失败")
 		return
 	}
-	fmt.Println(userId+"websocket连接成功", "location:websocket.go")
+	log.Info().Str("userId", userId).Msg("websocket连接成功")
 
 	//把客户端添加到客户端链接池
 	addClient(userId, connect)
@@ -51,12 +50,11 @@ func Handler(context *gin.Context) {
 		messageType, message, err := connect.ReadMessage()
 		fmt.Println(messageType)
 		if err != nil {
-			fmt.Println("遇到了:" + err.Error() + "location:websocket.go")
+			log.Error().Str("userId", userId).Msg("websocket连接失败")
 			deleteClient(userId)
 			connect.Close()
 			break
 		}
-		log.Println("收到消息：" + string(message))
 
 		response := "向客户端发送消息：" + string(message)
 		context.Writer.Write([]byte(response))
@@ -87,23 +85,26 @@ func getClient(id string) (conn *websocket.Conn, exist bool) {
 func deleteClient(id string) {
 	mux.Lock()
 	delete(client, id)
-	log.Println(id + "websocket退出")
+	log.Info().Msg("删除了客户端链接userId:" + id + "    location:websocket.go")
 	mux.Unlock()
 }
 
-// 发送消息
+// SendMsg 发送消息
 func SendMsg(urId int, message WsReMessage) {
 
 	userId := fmt.Sprintf("%d", urId)
 	connect, isExist := getClient(userId)
 
 	if !isExist {
-		log.Println(userId + "并未链接websocket" + "  location:websocket.go  SendMsg")
 		return
 	}
 
 	//把message变为json字符串
 	messageString, _ := json.Marshal(message)
+
+	if message.Type != CHAT_MESSAGE {
+		log.Info().Msg("向客户端发送消息：" + string(messageString) + "location:websocket.go")
+	}
 
 	connect.WriteMessage(websocket.TextMessage, messageString)
 }

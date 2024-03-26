@@ -21,17 +21,18 @@ class VersionService {
       print(response);
       var res = (response.data["data"] as List).firstWhere((element) => element["version"] == Constant.CURRENT_VERSION);
       if (res["enable"]) return;
-      launchUrl(Uri.parse(res["downloadUrl"]));
       updateAppAlert(res["downloadUrl"], false);
     } else {
       EasyLoading.showError('版本检查失败,请检查网络');
     }
   }
 
+  ///检查最新版本
   Future<void> checkLatestVersion() async {
     await EasyLoading.show(status: '检查更新中...');
     var response = await dio.get(Constant.LATESTVERSION);
     await EasyLoading.dismiss();
+
     if (response.data["code"] == 200) {
       print(response);
       var res = response.data["data"];
@@ -45,6 +46,7 @@ class VersionService {
     }
   }
 
+  ///更新app弹窗
   void updateAppAlert(String updateUrl, bool required) {
     Get.defaultDialog(
       title: required ? 'Update Required' : 'Update Available',
@@ -100,7 +102,9 @@ class VersionService {
         launchUrl(Uri.parse(updateUrl));
       },
       onCancel: () {
-        SystemNavigator.pop();
+        if (required) {
+          SystemNavigator.pop();
+        }
       },
     );
   }
@@ -139,7 +143,6 @@ class UserController {
 
   ///检查登录
   static Future<void> checkLogin() async {
-    print('checkLogin');
     var data = await authService.readUserFile();
     if (data != "") {
       try {
@@ -156,9 +159,9 @@ class UserController {
   }
 
   ///登录
-  static Future<bool> login(String name, String password) async {
+  static Future<bool> login(String password, String email) async {
     print('登录中 , location : user_controller.dart ,login');
-    var response = await dio.post(Constant.LOGIN, data: {'name': name, 'password': password});
+    var response = await dio.post(Constant.LOGIN, data: {'password': password, 'email': email});
     print("登录返回信息:$response");
     if (response.data["code"] == 200) {
       me = User(
@@ -237,6 +240,7 @@ class UserController {
   }
 }
 
+///用户信息
 class User {
   int id;
   String name;

@@ -3,7 +3,6 @@
 package handler
 
 import (
-	"awesomeProject3/Constant"
 	"awesomeProject3/api"
 	"awesomeProject3/service"
 	"fmt"
@@ -37,8 +36,8 @@ func (f *UserHandler) GetEmailCode(c *gin.Context) {
 	}
 	fmt.Println("给"+userEmail+"的验证码为："+code, "   location is :handler/user.go  GetEmailCode")
 	err = redisService.Set("registerCode", code)
-	var content = fmt.Sprintf(Constant.EmailTemplate, code)
-	err = emailService.SendEmail(userEmail, Constant.EmailTitle, content)
+	var content = fmt.Sprintf(api.EmailTemplate, code)
+	err = emailService.SendEmail(userEmail, api.EmailTitle, content)
 
 	if err != nil {
 		c.JSON(200, api.M(api.FAIL, "发送失败", err.Error()))
@@ -84,8 +83,8 @@ func (f *UserHandler) RegisterUser(c *gin.Context) {
 func (f *UserHandler) LoginUser(c *gin.Context) {
 	var user api.User
 	err := c.BindJSON(&user)
-	if err != nil || user.Name == "" || user.Password == "" {
-		c.JSON(200, api.M(api.FAIL, "参数错误", nil))
+	if err != nil || user.Email == "" || user.Password == "" {
+		c.JSON(200, api.M(api.FAIL, "邮箱或密码为空", nil))
 		return
 	}
 	err = f.userService.LoginUser(&user)

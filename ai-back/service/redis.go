@@ -1,8 +1,9 @@
 package service
 
 import (
-	"fmt"
+	"awesomeProject3/api"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 	"time"
 )
@@ -21,30 +22,25 @@ type redisService struct {
 
 func NewRedisService() RedisService {
 	return &redisService{
-		redisAddress:  "localhost:6379",
-		redisPassword: "",
-		redisDb:       0,
+		redisAddress:  api.RedisAddress,
+		redisPassword: api.RedisPassword,
+		redisDb:       api.RedisDb,
 	}
 }
 
 var ctx = context.Background()
+
 var rdb = redis.NewClient(&redis.Options{
-	Addr:     "gpt-redis:6379",
-	Password: "", // 没有密码，默认值
-	DB:       0,  // 默认DB 0
+	Addr:     api.RedisAddress,
+	Password: api.RedisPassword, // no password set
+	DB:       api.RedisDb,       // use default DB
 })
 
-func (r redisService) Set(key string, value string) error {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // 没有密码，默认值
-		DB:       0,  // 默认DB 0
-	})
+func (r *redisService) Set(key string, value string) error {
 
 	err := rdb.Set(ctx, key, value, 0).Err()
 	if err != nil {
-		fmt.Println("redis set失败提示：key is :", key, "value is :", value, "   location is :service/redis.go  Set")
-		fmt.Println("redis set error", err.Error(), "   location is :service/redis.go  Set")
+		log.Error().Msg("redis set失败提示：key is :" + key + "value is :" + value + "   location is :service/redis.go  Set")
 		return err
 	}
 
@@ -52,10 +48,10 @@ func (r redisService) Set(key string, value string) error {
 	return nil
 }
 
-func (r redisService) Get(key string) (string, error) {
+func (r *redisService) Get(key string) (string, error) {
 	return rdb.Get(ctx, key).Result()
 }
 
-func (r redisService) Del(key string) error {
+func (r *redisService) Del(key string) error {
 	return rdb.Del(ctx, key).Err()
 }

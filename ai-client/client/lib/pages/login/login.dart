@@ -40,13 +40,13 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildTextField(_usernameController, 'Username', Icons.person_outline),
+                if (!_isLogin) _buildTextField(_usernameController, 'Username', Icons.person_outline),
+                const SizedBox(height: 20.0),
+                _buildTextField(_emailController, 'Email', Icons.email),
                 const SizedBox(height: 20.0),
                 _buildTextField(_passwordController, 'Password', Icons.lock_outline, isPassword: true),
                 const SizedBox(height: 20.0),
                 if (!_isLogin) ...[
-                  _buildTextField(_emailController, 'Email', Icons.email),
-                  const SizedBox(height: 20.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -82,7 +82,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                     String password = _passwordController.text;
                     String email = _emailController.text; // 新增
                     if (_isLogin) {
-                      UserController.login(username, password);
+                      UserController.login(password, email);
                     } else {
                       String verificationCode = _verificationCodeController.text; // 新增
                       bool checkVerSuccess = await UserController.checkVerificationCode(email, verificationCode); // 新增

@@ -1,4 +1,5 @@
 import 'package:client/Controller/web_socket.dart';
+import 'package:client/pages/mine/prompts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -28,18 +29,31 @@ class Mine extends StatelessWidget {
               leading: const Icon(Icons.person),
               title: Text("UserName:${UserController.me.name}"),
             ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Prompts'),
+              onTap: () {
+                Get.to(() =>  PromptList());
+              },
+            ),
             //黑夜模式
             ListTile(
               onTap: () {
-                isDarkMode = !isDarkMode;
-                if (isDarkMode) {
-                  Get.changeTheme(ThemeData.dark());
-                } else {
-                  Get.changeTheme(ThemeData.light());
-                }
+                //切换黑夜模式
+                Get.changeTheme(Get.isDarkMode ? ThemeData.light() : ThemeData.dark());
               },
               leading: const Icon(Icons.nightlight_round),
               title: const Text('黑夜模式'),
+            ),
+            //当前版本
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('当前版本   点击检查更新'),
+              trailing: const Text(Constant.CURRENT_VERSION),
+              onTap: () async {
+                await UserController.versionService.checkLatestVersion();
+              },
+              // Rounded corners
             ),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
@@ -47,25 +61,6 @@ class Mine extends StatelessWidget {
               onTap: () {
                 UserController.logout();
               },
-            ),
-            //发送一个websocket
-            ListTile(
-              leading: const Icon(Icons.send),
-              title: const Text('发送一个websocket'),
-              onTap: () {
-                WSController.send("客户端尝试");
-              },
-            ),
-
-            //当前版本
-            ListTile(
-              leading: Icon(Icons.info),
-              title: Text('当前版本'),
-              trailing: Text(Constant.CURRENT_VERSION),
-              onTap: () async {
-                await UserController.versionService.checkLatestVersion();
-              },
-              // Rounded corners
             ),
           ],
         ),

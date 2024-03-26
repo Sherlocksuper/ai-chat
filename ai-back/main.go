@@ -1,11 +1,22 @@
 package main
 
 import (
+	"awesomeProject3/docs"
+	swaggerFiles "github.com/swaggo/files"
+	_ "github.com/swaggo/gin-swagger"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)                                  // gin-swagger middleware
+import _ "github.com/swaggo/files" // swagger embed files
+
+import (
 	"awesomeProject3/api"
 	"awesomeProject3/handler"
 	"awesomeProject3/service"
 	"awesomeProject3/ws"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"os"
 )
 
 type request struct {
@@ -15,12 +26,25 @@ type request struct {
 }
 
 func init() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+
 	api.Db.AutoMigrate(&api.User{})
 	api.Db.AutoMigrate(&api.Chat{})
 	api.Db.AutoMigrate(&api.Message{})
 	api.Db.AutoMigrate(&api.Version{})
 }
 
+// @title						Swagger Example API
+// @version					1.0
+// @description				This is a sample server celler server.
+// @contact.name				API Support
+// @contact.url				http://www.swagger.io/support
+// @contact.email				1075773551@qq.com
+// @license.name				Apache 2.0
+// @license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+// @host						localhost:7999
+// @securityDefinitions.basic	BasicAuth
 func main() {
 	userService := service.NewUserService()
 	userHandler := handler.NewUserHandler(userService)
@@ -31,33 +55,35 @@ func main() {
 	versionService := service.NewVersionService()
 	versionHandler := handler.NewVersionHandler(versionService)
 
-	//生成一个request的列表
-	requests := []request{
-		///TODO: User操作
-		{Type: api.POST, Path: api.REGISTER, Fun: userHandler.RegisterUser},
-		{Type: api.POST, Path: api.LOGIN, Fun: userHandler.LoginUser},
-		{Type: api.POST, Path: api.FIND, Fun: userHandler.FindUser},
-		{Type: api.GET, Path: api.FINDALL, Fun: userHandler.FindAllUser},
-		{Type: api.GET, Path: api.DELETEUSER, Fun: userHandler.DeleteUser},
-		{Type: api.GET, Path: api.GETEMAILCODE, Fun: userHandler.GetEmailCode},
-		{Type: api.GET, Path: api.CHECKEMAILCODE, Fun: userHandler.CheckRegisterCode},
+	r := gin.Default()
 
-		///TODO: Chat操作
-		{Type: api.POST, Path: api.StartAChatHAT, Fun: chatHandler.StartAChat},
-		{Type: api.GET, Path: api.DELETECHAT, Fun: chatHandler.DeleteChat},
-		{Type: api.GET, Path: api.DELETEALLCHAT, Fun: chatHandler.DeleteAllChat},
-		{Type: api.GET, Path: api.GETCHATDETAIL, Fun: chatHandler.GetChatDetail},
-		{Type: api.GET, Path: api.GETCHATLIST, Fun: chatHandler.GetChatList},
-		{Type: api.POST, Path: api.SENDMESSAGE, Fun: chatHandler.SendMessage},
-
-		///TODO:Version操作
-		{Type: api.GET, Path: api.ALLVERSION, Fun: versionHandler.GetAllVersions},
-		{Type: api.POST, Path: api.ADDVERSION, Fun: versionHandler.AddVersion},
-		{Type: api.GET, Path: api.LATESTVERSION, Fun: versionHandler.GetLatestVersion},
+	userGroup := r.Group(api.API + "/user")
+	{
+		userGroup.POST("/register", userHandler.RegisterUser)
+		userGroup.POST("/login", userHandler.LoginUser)
+		userGroup.POST("/find", userHandler.FindUser)
+		userGroup.GET("/findAll", userHandler.FindAllUser)
+		userGroup.GET("/delete", userHandler.DeleteUser)
+		userGroup.GET("/getemailcode", userHandler.GetEmailCode)
+		userGroup.GET("/checkemailcode", userHandler.CheckRegisterCode)
 	}
 
-	//注册路由
-	r := gin.Default()
+	chatGroup := r.Group(api.API + "/chat")
+	{
+		chatGroup.POST("/start", chatHandler.StartAChat)
+		chatGroup.GET("/delete", chatHandler.DeleteChat)
+		chatGroup.GET("/deleteall", chatHandler.DeleteAllChat)
+		chatGroup.GET("/detail", chatHandler.GetChatDetail)
+		chatGroup.GET("/list", chatHandler.GetChatList)
+		chatGroup.POST("/send", chatHandler.SendMessage)
+	}
+
+	versionGroup := r.Group(api.API + "/version")
+	{
+		versionGroup.GET("/all", versionHandler.GetAllVersions)
+		versionGroup.POST("/add", versionHandler.AddVersion)
+		versionGroup.GET("/latest", versionHandler.GetLatestVersion)
+	}
 
 	//配置跨域
 	r.Use(func(c *gin.Context) {
@@ -68,19 +94,6 @@ func main() {
 		c.Next()
 	})
 
-	for _, v := range requests {
-		path := api.API + v.Path
-		if v.Type == api.POST {
-			r.POST(path, v.Fun)
-		} else if v.Type == api.GET {
-			r.GET(path, v.Fun)
-		} else if v.Type == api.DELETE {
-			r.DELETE(path, v.Fun)
-		} else {
-			panic("error request type")
-		}
-	}
-
 	r.GET(api.API+"/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -88,6 +101,15 @@ func main() {
 	})
 
 	r.GET("/ws", ws.Handler)
+
+	docs.SwaggerInfo.Title = "Swagger Example API"
+	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "petstore.swagger.io"
+	docs.SwaggerInfo.BasePath = "/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	// use ginSwagger middleware to serve the API docs
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.Run(":8080")
 }

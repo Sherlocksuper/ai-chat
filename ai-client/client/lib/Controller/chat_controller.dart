@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:client/Controller/web_socket.dart';
 import 'package:client/model/chat_struct.dart';
@@ -76,8 +77,7 @@ class ChatController extends GetxController {
 
     addMessage(chatId, "user", content);
     update([chatId]);
-
-    print("把消息添加到了本地并且刷新了页面");
+    log("发送消息", name: "发送消息", level: 7);
 
     var response = await dio.post(Constant.SENDMESSAGE, data: {'chatId': chatId, 'content': content});
 

@@ -1,14 +1,15 @@
 package service
 
 import (
-	"awesomeProject3/Constant"
 	"awesomeProject3/api"
 	"errors"
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"gorm.io/gorm"
 	"strconv"
 )
+
+var location = "service/chat.go"
 
 type Chat = api.Chat
 
@@ -29,13 +30,25 @@ type ChatService interface {
 
 type chatService struct{}
 
-// StartAChat 开始一个聊天
+// StartAChat ShowAccount godoc
+//	@Summary		start a chat
+//	@Description	start a chat
+//	@Tags			chat
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"Account ID"
+//	@Success		200	{object}	api.User
+//	@Failure		400	{object}	error
+//	@Failure		404	{object}	error
+//	@Failure		500	{object}	error
+//	@Router			/chat/start [get]
 func (c chatService) StartAChat(title string, id string, systemMessage string) error {
+	log.Info().Msg("用户" + id + "开始一个" + title + "的聊天" + "location is :service/chat.go  StartAChat")
 	if len(title) == 0 || title == "" {
 		return errors.New("title can not be empty")
 	}
 	if len(systemMessage) == 0 {
-		systemMessage = Constant.DefaultSystemMessage
+		systemMessage = api.DefaultSystemMessage
 	}
 	Idint, _ := strconv.Atoi(id)
 
@@ -67,7 +80,8 @@ func (c chatService) DeleteChat(id string) error {
 
 // DeleteAllChat delete all chat
 func (c chatService) DeleteAllChat(userId string) error {
-	println("userId is :"+userId, "location is :service/chat.go  DeleteAllChat")
+	//打印
+	log.Info().Msg("用户" + userId + "删除所有聊天" + "location is :service/chat.go  DeleteAllChat")
 	Idint, _ := strconv.Atoi(userId)
 	err := api.Db.Where("user_id = ?", Idint).Delete(&Chat{})
 	if err.Error != nil {
@@ -83,14 +97,13 @@ func (c chatService) GetChatDetail(id string) (Chat, error) {
 	if chat.ID == 0 || err.RowsAffected == 0 {
 		return chat, errors.New("chat not found")
 	}
-	fmt.Println(chat, "location:service/chat.go GetChatDetail")
+	log.Info().Msg("chat is :" + chat.Title + "location is :service/chat.go  GetChatDetail")
 	return chat, nil
 }
 
 // GetChatList 获取聊天列表
 func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 	Idint, _ := strconv.Atoi(userId)
-	//Messages倒序输出
 	err := api.Db.Model(&Chat{}).Preload("Messages", func(db *gorm.DB) *gorm.DB {
 		return api.Db.Order("id desc")
 	}).Where("user_id = ?", Idint).Find(&chats)
@@ -102,7 +115,7 @@ func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 
 // SendMessage 发送消息
 func (c chatService) SendMessage(chatId string, message string) error {
-	fmt.Println("chatId is :"+chatId, "message is :"+message, "    location is :service/chat.go  SendMessage")
+	log.Info().Msg("chatId is :" + chatId + "location is :service/chat.go  SendMessage")
 
 	chat := Chat{}
 	err := api.Db.Model(&Chat{}).Preload("Messages").Find(&chat, chatId)

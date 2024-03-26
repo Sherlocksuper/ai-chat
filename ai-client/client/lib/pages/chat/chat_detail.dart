@@ -24,102 +24,99 @@ class ChatDetail extends StatelessWidget {
             logic.scrollController.position.minScrollExtent,
           );
         });
-        return PopScope(
-          onPopInvoked: (value) {},
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text(chat.title),
-            ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        reverse: true,
-                        physics: const ClampingScrollPhysics(),
-                        controller: logic.scrollController,
-                        itemBuilder: (context, index) {
-                          return ChatBubbles(
-                            messageStruct: chat.messages[index],
-                          );
-                        },
-                        itemCount: chat.messages.length,
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            logic.scrollController.animateTo(
-                              logic.scrollController.position.minScrollExtent,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                          mini: true,
-                          child: const Icon(Icons.arrow_downward),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200], // Light grey color for the background
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5), // Shadow color with some transparency
-                        spreadRadius: 2,
-                        blurRadius: 4,
-                        offset: const Offset(0, 3), // Position of the shadow
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          controller: textInputController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                            hintText: '输入消息...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0), // Rounded corners for the input field
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          onChanged: (value) {
-                            textInputController.text = value;
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.send, color: Colors.blue), // Icon color changed to blue
-                        onPressed: () async {
-                          var content = textInputController.text;
-                          textInputController.clear();
-
-                          FocusScope.of(context).requestFocus(FocusNode());
-
-                          await logic.sendMessage(chat.id, content);
-
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(chat.title),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      reverse: true,
+                      physics: const ClampingScrollPhysics(),
+                      controller: logic.scrollController,
+                      itemBuilder: (context, index) {
+                        return ChatBubbles(
+                          messageStruct: chat.messages[index],
+                        );
+                      },
+                      itemCount: chat.messages.length,
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: FloatingActionButton(
+                        onPressed: () {
                           logic.scrollController.animateTo(
-                            logic.scrollController.position.maxScrollExtent,
+                            logic.scrollController.position.minScrollExtent,
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeInOut,
                           );
                         },
+                        mini: true,
+                        child: const Icon(Icons.arrow_downward),
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Light grey color for the background
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5), // Shadow color with some transparency
+                      spreadRadius: 2,
+                      blurRadius: 4,
+                      offset: const Offset(0, 3), // Position of the shadow
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        controller: textInputController,
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                          hintText: '输入消息...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0), // Rounded corners for the input field
+                          ),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                        onChanged: (value) {
+                          textInputController.text = value;
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send, color: Colors.blue), // Icon color changed to blue
+                      onPressed: () async {
+                        var content = textInputController.text;
+                        textInputController.clear();
+
+                        FocusScope.of(context).requestFocus(FocusNode());
+
+                        await logic.sendMessage(chat.id, content);
+
+                        logic.scrollController.animateTo(
+                          logic.scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
         );
       },

@@ -5,6 +5,7 @@ import (
 	"awesomeProject3/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"strconv"
 )
 
@@ -96,7 +97,8 @@ func (f *ChatHandler) SendMessage(c *gin.Context) {
 	err := c.BindJSON(&message)
 
 	//打印message
-	fmt.Println("message is :"+message.Content, "location is :handler/chat.go")
+
+	log.Info().Msg("message is :" + fmt.Sprint(message.Content) + "location is :handler/chat.go  SendMessage")
 
 	if err != nil {
 		c.JSON(200, api.M(api.FAIL, "参数错误", nil))
@@ -115,7 +117,7 @@ func (f *ChatHandler) SendMessage(c *gin.Context) {
 	chat := api.Chat{}
 	api.Db.Find(&chat, message.ChatID)
 
-	fmt.Println("userId is :"+strconv.Itoa(int(chat.UserID)), "location is :handler/chat.go SendMessage")
+	log.Info().Msg("chatId is :" + strconv.Itoa(message.ChatID) + "location is :handler/chat.go  SendMessage")
 
 	//通过UserId获取websocket连接,并向客户端发送消息
 

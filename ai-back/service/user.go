@@ -6,6 +6,7 @@ import (
 	"awesomeProject3/api"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,6 +42,7 @@ func (u userService) HasNameOrEmail(name string, email string) error {
 }
 
 func (u userService) RegisterUser(username, email, password string) error {
+	log.Info().Msg("用户名字:" + username + "密码:" + password + "  注册" + "location is :service/user.go  RegisterUser")
 	err := u.HasNameOrEmail(username, email)
 	if err != nil {
 		return err
@@ -53,10 +55,9 @@ func (u userService) RegisterUser(username, email, password string) error {
 }
 
 func (u userService) LoginUser(user *api.User) error {
-	fmt.Println("账号" + user.Name)
-	fmt.Println("密码" + user.Password)
+	log.Info().Msg("用户" + user.Email + "密码" + user.Password + "   登录")
 	password := user.Password
-	api.Db.Where("name = ?", user.Name).First(&user)
+	api.Db.Where("email = ?", user.Email).First(&user)
 	if user.ID == 0 {
 		return errors.New("用户不存在")
 	}

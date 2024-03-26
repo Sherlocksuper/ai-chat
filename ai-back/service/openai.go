@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"io"
 )
@@ -41,17 +42,16 @@ func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId 
 	for {
 		response, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
-			fmt.Println("\nStream finished")
+			log.Info().Msg("Stream finished")
 			break
 		}
 
 		if err != nil {
-			fmt.Println("\nStream error: %v\n", err)
+			log.Error().Msg("Stream error: " + err.Error())
 			break
 		}
 
 		totalResponse += response.Choices[0].Delta.Content
-		fmt.Println(response.Choices[0].Delta.Content)
 
 		ws.SendMsg(userId, ws.WsReMessage{
 			Type: ws.CHAT_MESSAGE,
@@ -63,15 +63,17 @@ func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId 
 		})
 	}
 
+	//打印 ai回复chatId + 消息内容
+	log.Info().Msg("response to user :" + string(userId) + "  message is :" + totalResponse + "location is :service/openai.go  streamMessages")
+
 	return totalResponse
 }
 
 func buildOpenAIMessages(messages *[]api.Message) []openai.ChatCompletionMessage {
 	var openAIMessages []openai.ChatCompletionMessage
 
-	println("messages is : location:service/openai.go  buildOpenAIMessages")
+	log.Info().Msg("messages is :" + fmt.Sprint(messages) + "location is :service/openai.go  buildOpenAIMessages")
 	for _, message := range *messages {
-		println(message.Content)
 		openAIMessages = append(openAIMessages, openai.ChatCompletionMessage{
 			Role:    message.Role,
 			Content: message.Content,
