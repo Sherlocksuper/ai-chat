@@ -3,6 +3,7 @@ package service
 import (
 	"awesomeProject3/api"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"gorm.io/gorm"
@@ -25,12 +26,13 @@ type ChatService interface {
 
 	GetChatList(chats *[]Chat, userId string) error
 
-	SendMessage(chatId string, message string) error
+	SendMessage(context *gin.Context, chatId string, message string) error
 }
 
 type chatService struct{}
 
 // StartAChat ShowAccount godoc
+//
 //	@Summary		start a chat
 //	@Description	start a chat
 //	@Tags			chat
@@ -38,9 +40,6 @@ type chatService struct{}
 //	@Produce		json
 //	@Param			id	path		int	true	"Account ID"
 //	@Success		200	{object}	api.User
-//	@Failure		400	{object}	error
-//	@Failure		404	{object}	error
-//	@Failure		500	{object}	error
 //	@Router			/chat/start [get]
 func (c chatService) StartAChat(title string, id string, systemMessage string) error {
 	log.Info().Msg("用户" + id + "开始一个" + title + "的聊天" + "location is :service/chat.go  StartAChat")
@@ -114,28 +113,23 @@ func (c chatService) GetChatList(chats *[]Chat, userId string) error {
 }
 
 // SendMessage 发送消息
-func (c chatService) SendMessage(chatId string, message string) error {
+// 1.在数据库中保存
+// 2.调用openai的streamMessages方法
+func (c chatService) SendMessage(context *gin.Context, chatId string, message string) error {
 	log.Info().Msg("chatId is :" + chatId + "location is :service/chat.go  SendMessage")
-
 	chat := Chat{}
 	err := api.Db.Model(&Chat{}).Preload("Messages").Find(&chat, chatId)
-
 	if err.Error != nil || err.RowsAffected == 0 {
 		return errors.New("chat not found")
 	}
 
-	//把chatId变为int
-	cId, _ := strconv.Atoi(chatId)
-
 	chat.Messages = append(chat.Messages, api.Message{Role: openai.ChatMessageRoleUser, Content: message})
-
-	response := streamMessages(buildOpenAIMessages(&chat.Messages), int(chat.UserID), cId)
-
-	//这里是在数据库更新用户发送的消息和AI回复的消息
+	response := streamMessages(buildOpenAIMessages(&chat.Messages), context)
 	chat.Messages = append(chat.Messages, api.Message{Role: openai.ChatMessageRoleAssistant, Content: response})
 	err = api.Db.Save(&chat)
+	log.Info().Msg(message + "   is saved to database" + "location is :service/chat.go  SendMessage")
+	log.Info().Msg(response + "   is saved to database" + "location is :service/chat.go  SendMessage")
 
-	//如果失败
 	if err.Error != nil {
 		return errors.New("send message failed")
 	}

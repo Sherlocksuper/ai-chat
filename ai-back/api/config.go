@@ -10,14 +10,10 @@ var Db, _ = gorm.Open(mysql.Open(DSN), &gorm.Config{})
 
 // openai go服务
 const (
-	DSN = "root:root@tcp(localhost:3306)/ai?charset=utf8mb4&parseTime=True&loc=Local"
-	//OPENAITOKEN          = "sk-aIYgLMM0SGNroc9n2270Ed56Af2f403bAb652b77C0F0BbA6"
-	//BASEURL              = "https://hk.xty.app/v1"
-	//MODEL       = openai.GPT3Dot5Turbo
-	OPENAITOKEN = "sk-UR1Vea04XpkoPi1T071cB5A4FdF94dFf89Ba7933DaB42005"
-	BASEURL     = "https://izepkqss.cloud.sealos.io"
-	//BASEURL              = "https://api.openai.com/v1"
-	MODEL                = openai.GPT4
+	DSN                  = "root:root@tcp(localhost:3306)/ai?charset=utf8mb4&parseTime=True&loc=Local"
+	OPENAITOKEN          = "sk-aIYgLMM0SGNroc9n2270Ed56Af2f403bAb652b77C0F0BbA6"
+	BASEURL              = "https://hk.xty.app/v1"
+	MODEL                = openai.GPT3Dot5Turbo
 	MAXTOKENS            = 2000
 	DefaultSystemMessage = "你是我的ai助手，请帮助我解决问题"
 )

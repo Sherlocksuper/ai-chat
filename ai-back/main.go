@@ -29,22 +29,18 @@ func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 
-	api.Db.AutoMigrate(&api.User{})
-	api.Db.AutoMigrate(&api.Chat{})
-	api.Db.AutoMigrate(&api.Message{})
-	api.Db.AutoMigrate(&api.Version{})
+	var err error
+
+	err = api.Db.AutoMigrate(&api.User{})
+	err = api.Db.AutoMigrate(&api.Chat{})
+	err = api.Db.AutoMigrate(&api.Message{})
+	err = api.Db.AutoMigrate(&api.Version{})
+	err = api.Db.AutoMigrate(&api.Prompt{})
+	if err != nil {
+		log.Error().Msg("数据库迁移失败：" + err.Error())
+	}
 }
 
-// @title						Swagger Example API
-// @version					1.0
-// @description				This is a sample server celler server.
-// @contact.name				API Support
-// @contact.url				http://www.swagger.io/support
-// @contact.email				1075773551@qq.com
-// @license.name				Apache 2.0
-// @license.url				http://www.apache.org/licenses/LICENSE-2.0.html
-// @host						localhost:7999
-// @securityDefinitions.basic	BasicAuth
 func main() {
 	userService := service.NewUserService()
 	userHandler := handler.NewUserHandler(userService)
@@ -54,6 +50,9 @@ func main() {
 
 	versionService := service.NewVersionService()
 	versionHandler := handler.NewVersionHandler(versionService)
+
+	promptService := service.NewPromptService()
+	promptHandler := handler.NewPromptHandler(promptService)
 
 	r := gin.Default()
 
@@ -83,6 +82,14 @@ func main() {
 		versionGroup.GET("/all", versionHandler.GetAllVersions)
 		versionGroup.POST("/add", versionHandler.AddVersion)
 		versionGroup.GET("/latest", versionHandler.GetLatestVersion)
+	}
+
+	promptGroup := r.Group(api.API + "/prompt")
+	{
+		promptGroup.POST("/add", promptHandler.AddPrompt)
+		promptGroup.GET("/delete", promptHandler.DeletePrompt)
+		promptGroup.GET("/list", promptHandler.GetPromptList)
+		promptGroup.POST("/update", promptHandler.UpdatePrompt)
 	}
 
 	//配置跨域

@@ -2,13 +2,14 @@ package service
 
 import (
 	"awesomeProject3/api"
-	"awesomeProject3/ws"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"io"
+	"net/http"
 )
 
 func init() {
@@ -16,11 +17,17 @@ func init() {
 }
 
 // /流式接收信息
-func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId int) string {
+func streamMessages(messages []openai.ChatCompletionMessage, ginCon *gin.Context) string {
+	//设置openai的配置
 	config := openai.DefaultConfig(api.OPENAITOKEN)
 	config.BaseURL = api.BASEURL
 	c := openai.NewClientWithConfig(config)
 
+	//设置网络writer以及
+	w := ginCon.Writer
+	w.WriteHeader(200)
+
+	//开启stream
 	ctx := context.Background()
 	req := openai.ChatCompletionRequest{
 		Model:     api.MODEL,
@@ -28,15 +35,13 @@ func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId 
 		Messages:  messages,
 		Stream:    true,
 	}
-
 	stream, err := c.CreateChatCompletionStream(ctx, req)
+
 	if err != nil {
-		fmt.Println(err.Error() + `,location:openai.go  streamMessages`)
+		log.Error().Msg("Stream error: " + err.Error())
 		return ""
 	}
-
 	defer stream.Close()
-
 	totalResponse := ""
 
 	for {
@@ -45,7 +50,6 @@ func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId 
 			log.Info().Msg("Stream finished")
 			break
 		}
-
 		if err != nil {
 			log.Error().Msg("Stream error: " + err.Error())
 			break
@@ -53,18 +57,10 @@ func streamMessages(messages []openai.ChatCompletionMessage, userId int, chatId 
 
 		totalResponse += response.Choices[0].Delta.Content
 
-		ws.SendMsg(userId, ws.WsReMessage{
-			Type: ws.CHAT_MESSAGE,
-			Content: ws.ChatResContent{
-				UserId:  userId,
-				ChatId:  chatId,
-				Message: response.Choices[0].Delta.Content,
-			},
-		})
+		w.Write([]byte(response.Choices[0].Delta.Content))
+		w.(http.Flusher).Flush()
+		fmt.Print(response.Choices[0].Delta.Content)
 	}
-
-	//打印 ai回复chatId + 消息内容
-	log.Info().Msg("response to user :" + string(userId) + "  message is :" + totalResponse + "location is :service/openai.go  streamMessages")
 
 	return totalResponse
 }

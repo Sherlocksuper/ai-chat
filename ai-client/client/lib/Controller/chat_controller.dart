@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:client/Controller/web_socket.dart';
 import 'package:client/model/chat_struct.dart';
 import 'package:client/model/message.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -77,14 +79,24 @@ class ChatController extends GetxController {
 
     addMessage(chatId, "user", content);
     update([chatId]);
-    log("发送消息", name: "发送消息", level: 7);
 
-    var response = await dio.post(Constant.SENDMESSAGE, data: {'chatId': chatId, 'content': content});
-
-    if (response.data["code"] == 200) {
-    } else {
-      EasyLoading.showError(response.data["message"]);
-    }
+    dio.post(
+      Constant.SENDMESSAGE,
+      data: {'chatId': chatId, 'content': content},
+      onReceiveProgress: (int count, int total) {
+        print("count:$count,total:$total");
+      },
+      options: Options(
+        responseType: ResponseType.stream,
+      ),
+    ).then(
+      (value) {
+        value.data.stream.listen((data) {
+          String answer = Utf8Decoder().convert(data);
+          receiveStreamingMessage(chatId, answer);
+        });
+      },
+    );
   }
 
   ///获取消息列表

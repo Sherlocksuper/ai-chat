@@ -21,7 +21,7 @@ class VersionService {
       print(response);
       var res = (response.data["data"] as List).firstWhere((element) => element["version"] == Constant.CURRENT_VERSION);
       if (res["enable"]) return;
-      updateAppAlert(res["downloadUrl"], false);
+      updateAppAlert(res["downloadUrl"], true);
     } else {
       EasyLoading.showError('版本检查失败,请检查网络');
     }

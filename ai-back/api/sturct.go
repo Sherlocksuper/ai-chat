@@ -44,6 +44,13 @@ type Email struct {
 	Content     string `json:"content"`
 }
 
+type Prompt struct {
+	gorm.Model
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	Function string `json:"function"`
+}
+
 // 一些返回的code
 type ReturnMessage struct {
 	Code    int    `json:"code"`
